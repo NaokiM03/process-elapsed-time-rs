@@ -28,6 +28,19 @@ pub fn starttime() -> Result<u64> {
     Ok(starttime)
 }
 
+pub fn uptime() -> Result<u64> {
+    // awk '{print $1}' /proc/uptime
+    let uptime = fs::read_to_string("/proc/uptime")?
+        .split_ascii_whitespace()
+        .nth(0)
+        .expect("Failed to get uptime")
+        .parse::<f64>()
+        .expect("Failed to parse uptime")
+        .floor() as u64;
+
+    Ok(uptime)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -51,6 +64,28 @@ mod tests {
             let clock_ticks = unsafe { sysconf(_SC_CLK_TCK) as u64 };
 
             starttime.parse::<u64>().unwrap() / clock_ticks
+        };
+
+        assert_eq!(result, expect);
+    }
+
+    #[test]
+    fn test_uptime() {
+        let result = uptime().unwrap();
+
+        let expect = {
+            let output = std::process::Command::new("awk")
+                .args(["{print $1}", "/proc/uptime"])
+                .output()
+                .unwrap();
+            let stdout = output.stdout;
+            let starttime = stdout
+                .iter()
+                .filter(|&&x| x != '\n' as u8)
+                .map(|&x| x as char)
+                .collect::<String>();
+
+            starttime.parse::<f64>().unwrap().floor() as u64
         };
 
         assert_eq!(result, expect);
