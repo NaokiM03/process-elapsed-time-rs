@@ -13,7 +13,7 @@ extern "C" {
     fn sysconf(name: c_int) -> c_long;
 }
 
-pub fn starttime() -> Result<u64> {
+fn starttime() -> Result<u64> {
     // awk '{print $22}' /proc/self/stat
     let starttime = fs::read_to_string("/proc/self/stat")?
         .split_ascii_whitespace()
@@ -28,7 +28,7 @@ pub fn starttime() -> Result<u64> {
     Ok(starttime)
 }
 
-pub fn uptime() -> Result<u64> {
+fn uptime() -> Result<u64> {
     // awk '{print $1}' /proc/uptime
     let uptime = fs::read_to_string("/proc/uptime")?
         .split_ascii_whitespace()
@@ -39,6 +39,11 @@ pub fn uptime() -> Result<u64> {
         .floor() as u64;
 
     Ok(uptime)
+}
+
+pub fn elapsed_time() -> Result<u64> {
+    let elapsed_time = uptime()? - starttime()?;
+    Ok(elapsed_time)
 }
 
 #[cfg(test)]
@@ -89,5 +94,15 @@ mod tests {
         };
 
         assert_eq!(result, expect);
+    }
+
+    #[test]
+    fn test_elapsed_time() {
+        let time_secs = 3;
+
+        std::thread::sleep(std::time::Duration::from_secs(time_secs));
+        let result = elapsed_time().unwrap();
+
+        assert_eq!(result, time_secs);
     }
 }
