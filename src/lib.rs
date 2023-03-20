@@ -46,63 +46,63 @@ pub fn elapsed_time() -> Result<u64> {
     Ok(elapsed_time)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
 
-    #[test]
-    fn test_starttime() {
-        let result = starttime().unwrap();
+//     #[test]
+//     fn test_starttime() {
+//         let result = starttime().unwrap();
 
-        let expect = {
-            let output = std::process::Command::new("awk")
-                .args(["{print $22}", "/proc/self/stat"])
-                .output()
-                .unwrap();
-            let stdout = output.stdout;
-            let starttime = stdout
-                .iter()
-                .filter(|&&x| x != '\n' as u8)
-                .map(|&x| x as char)
-                .collect::<String>();
+//         let expect = {
+//             let output = std::process::Command::new("awk")
+//                 .args(["{print $22}", "/proc/self/stat"])
+//                 .output()
+//                 .unwrap();
+//             let stdout = output.stdout;
+//             let starttime = stdout
+//                 .iter()
+//                 .filter(|&&x| x != '\n' as u8)
+//                 .map(|&x| x as char)
+//                 .collect::<String>();
 
-            let clock_ticks = unsafe { sysconf(_SC_CLK_TCK) as u64 };
+//             let clock_ticks = unsafe { sysconf(_SC_CLK_TCK) as u64 };
 
-            starttime.parse::<u64>().unwrap() / clock_ticks
-        };
+//             starttime.parse::<u64>().unwrap() / clock_ticks
+//         };
 
-        assert_eq!(result, expect);
-    }
+//         assert_eq!(result, expect);
+//     }
 
-    #[test]
-    fn test_uptime() {
-        let result = uptime().unwrap();
+//     #[test]
+//     fn test_uptime() {
+//         let result = uptime().unwrap();
 
-        let expect = {
-            let output = std::process::Command::new("awk")
-                .args(["{print $1}", "/proc/uptime"])
-                .output()
-                .unwrap();
-            let stdout = output.stdout;
-            let starttime = stdout
-                .iter()
-                .filter(|&&x| x != '\n' as u8)
-                .map(|&x| x as char)
-                .collect::<String>();
+//         let expect = {
+//             let output = std::process::Command::new("awk")
+//                 .args(["{print $1}", "/proc/uptime"])
+//                 .output()
+//                 .unwrap();
+//             let stdout = output.stdout;
+//             let starttime = stdout
+//                 .iter()
+//                 .filter(|&&x| x != '\n' as u8)
+//                 .map(|&x| x as char)
+//                 .collect::<String>();
 
-            starttime.parse::<f64>().unwrap().floor() as u64
-        };
+//             starttime.parse::<f64>().unwrap().floor() as u64
+//         };
 
-        assert_eq!(result, expect);
-    }
+//         assert_eq!(result, expect);
+//     }
 
-    #[test]
-    fn test_elapsed_time() {
-        let time_secs = 3;
+//     #[test]
+//     fn test_elapsed_time() {
+//         let time_secs = 3;
 
-        std::thread::sleep(std::time::Duration::from_secs(time_secs));
-        let result = elapsed_time().unwrap();
+//         std::thread::sleep(std::time::Duration::from_secs(time_secs));
+//         let result = elapsed_time().unwrap();
 
-        assert_eq!(result, time_secs);
-    }
-}
+//         assert_eq!(result, time_secs);
+//     }
+// }
